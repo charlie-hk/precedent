@@ -16,6 +16,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent / "src"))
 
 from precedent import data_pipeline as dp
+from precedent import report
 from precedent import structure as st
 from precedent.backtest import walk_forward
 from precedent.similarity import AnalogSearch
@@ -38,17 +39,14 @@ def main() -> None:
         print(f"  warning: {w}")
 
     res = st.analyze(df)
-    labels = res["labels"]
-    n_bos = int((labels["event"] == "BOS").sum())
-    n_choch = int((labels["event"] == "CHOCH").sum())
     print("\n== Structure ==")
-    print(f"swings={len(res['swings'])}  BOS={n_bos}  CHOCH={n_choch}  "
-          f"zones={len(res['zones'])}  liquidity_sweeps={len(res['sweeps'])}")
-    final_trend = labels['trend'].iloc[-1]
-    print(f"current trend read: {final_trend}")
-    if res["zones"]:
-        z = res["zones"][0]
-        print(f"strongest zone: {z.kind} {z.bottom:.2f}-{z.top:.2f} (strength {z.strength:.2f})")
+    print(report.text_report(df, res))
+    try:
+        from precedent.viz import plot_structure
+        out = plot_structure(df, res, "out/structure.png")
+        print(f"\nchart with marked BOS/CHOCH saved to: {out}")
+    except Exception as e:
+        print(f"\n(chart skipped: {e.__class__.__name__}. pip install matplotlib to enable)")
 
     print("\n== Historical analog (latest bar) ==")
     search = AnalogSearch(df, window=args.window, horizon=args.horizon)

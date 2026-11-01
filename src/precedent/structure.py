@@ -100,6 +100,45 @@ def label_structure(df: pd.DataFrame, swings: list[Swing]) -> pd.DataFrame:
     return pd.DataFrame({"trend": trend, "event": event})
 
 
+@dataclass
+class StructureEvent:
+    index: int
+    time: pd.Timestamp
+    kind: str  # "BOS" or "CHOCH"
+    price: float  # the swing price that did the breaking
+    level: float  # the prior swing level that was broken
+    trend_after: str
+
+
+def events(df: pd.DataFrame, swings: list[Swing]) -> list[StructureEvent]:
+    """Precise BOS/CHOCH list: each with the bar, the broken level and the new trend.
+
+    Same walk as `label_structure`, but it records *where* each break happened and
+    which prior swing level it broke, so the output can be shown or drawn exactly.
+    """
+    out: list[StructureEvent] = []
+    last_high: float | None = None
+    last_low: float | None = None
+    cur = Trend.RANGE
+
+    for sw in swings:
+        if sw.kind == "high":
+            if last_high is not None and sw.price > last_high:
+                kind = "CHOCH" if cur == Trend.DOWN else "BOS"
+                cur = Trend.UP
+                out.append(StructureEvent(sw.index, df.index[sw.index], kind,
+                                          float(sw.price), float(last_high), cur.value))
+            last_high = sw.price
+        else:
+            if last_low is not None and sw.price < last_low:
+                kind = "CHOCH" if cur == Trend.UP else "BOS"
+                cur = Trend.DOWN
+                out.append(StructureEvent(sw.index, df.index[sw.index], kind,
+                                          float(sw.price), float(last_low), cur.value))
+            last_low = sw.price
+    return out
+
+
 def supply_demand_zones(df: pd.DataFrame, swings: list[Swing], max_zones: int = 40) -> list[Zone]:
     """Zones from the base of a strong move off a confirmed swing.
 
@@ -158,6 +197,7 @@ def analyze(df: pd.DataFrame, left: int = 2, right: int = 2) -> dict:
     """Run the full structure pass and return swings, labels, zones and sweeps."""
     swings = find_swings(df, left, right)
     labels = label_structure(df, swings)
+    evs = events(df, swings)
     zones = supply_demand_zones(df, swings)
     sweeps = liquidity_sweeps(df, swings)
-    return {"swings": swings, "labels": labels, "zones": zones, "sweeps": sweeps}
+    return {"swings": swings, "labels": labels, "events": evs, "zones": zones, "sweeps": sweeps}

@@ -18,6 +18,7 @@ import numpy as np
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 from precedent import data_pipeline as dp  # noqa: E402
+from precedent import report  # noqa: E402
 from precedent import structure as st  # noqa: E402
 from precedent.mt5_loader import available_symbols, load_mt5  # noqa: E402
 from precedent.similarity import AnalogSearch  # noqa: E402
@@ -44,14 +45,16 @@ def main():
     print(f"rows={rep.rows}  {rep.start} -> {rep.end}  gaps={rep.gaps}  bad_ohlc={rep.bad_ohlc}")
 
     res = st.analyze(df)
-    labels = res["labels"]
-    print("\n== Structure (now) ==")
-    print(f"trend: {labels['trend'].iloc[-1]}  "
-          f"BOS={(labels['event']=='BOS').sum()}  CHOCH={(labels['event']=='CHOCH').sum()}  "
-          f"zones={len(res['zones'])}  sweeps={len(res['sweeps'])}")
-    if res["zones"]:
-        z = res["zones"][0]
-        print(f"strongest zone: {z.kind} {z.bottom:.2f}-{z.top:.2f} (strength {z.strength:.2f})")
+    print("\n== Structure ==")
+    print(report.text_report(df, res))
+
+    # Draw the marked chart (needs matplotlib).
+    try:
+        from precedent.viz import plot_structure
+        out = plot_structure(df, res, f"out/{args.symbol}_{args.timeframe}_structure.png")
+        print(f"\nchart with marked BOS/CHOCH saved to: {out}")
+    except Exception as e:
+        print(f"\n(chart skipped: {e.__class__.__name__}: {e}. pip install matplotlib to enable)")
 
     print("\n== Analog read (latest completed bar) ==")
     search = AnalogSearch(df, window=WINDOW, horizon=HORIZON)
