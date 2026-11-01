@@ -34,15 +34,25 @@ Author: A. Amini
   the analog outcomes carry any signal about the forward return, including on the
   subset where analogs agreed most. It reports what is there, honestly, including
   when the edge is weak.
+- **Trained direction model** (`ml.py`): a real gradient-boosted classifier that
+  learns next-move direction from the window features and is evaluated
+  walk-forward against the naive base rate. Not a stub, not a lookup. It prints
+  its honest out-of-sample edge, which on this kind of data is usually near zero.
+- **Structure chart** (`viz.py`): a candlestick chart with BOS/CHOCH drawn as
+  lines at the broken level, swings, and supply/demand zones shaded.
 
 Run it:
 
 ```bash
 pip install -r requirements.txt
 python scripts/generate_sample.py      # writes data/sample_xauusd_h1.csv (synthetic)
-python demo.py                         # full pipeline + report
-python -m pytest tests/ -q             # 6 tests, incl. causality / no-look-ahead
+python demo.py                         # full pipeline + report + chart
+python scripts/train_model.py          # train the direction model, walk-forward
+python -m pytest tests/ -q             # tests, incl. causality / no-look-ahead
 ```
+
+The demo writes a candlestick chart with BOS/CHOCH marked to `out/structure.png`
+(needs `pip install matplotlib`).
 
 Point it at your own data with `python demo.py --csv your_xauusd_h1.csv` (columns:
 `time, open, high, low, close, volume`).
@@ -80,9 +90,10 @@ methods raise `ReservedComponent` rather than shipping a fake implementation.
 
 Reserved:
 
-1. **Learned similarity metric** — the public demo ranks analogs by cosine
-   distance on a baseline feature set. The fitted metric that pulls together
-   windows with similar *outcomes* (not just similar shapes) is reserved.
+1. **Learned similarity metric and the production model** — the demo ships a real
+   trained direction model (`ml.py`) and a baseline cosine analog search. The
+   fitted similarity metric that pulls together windows with similar *outcomes*,
+   and the production model with the tuned feature set, are reserved.
 2. **Production feature / embedding set** — the baseline encoder uses normalised
    returns, path and range. The tuned feature set (microstructure terms,
    multi-timeframe structural alignment, volume-shape features) that materially
