@@ -1,0 +1,20 @@
+Copyright (c) 2026 A. Amini (Ali Amini). All rights reserved.
+
+This repository is a private portfolio sample, published to demonstrate the
+author's work. It is not open-source software.
+
+You may view and review the code for the purpose of evaluating the author.
+
+You may not, without the author's prior written consent:
+  - use this code or any part of it in any product, service or research,
+    commercial or non-commercial;
+  - copy, redistribute, sublicense or sell it;
+  - create derivative works from it.
+
+The components described as "reserved" in the README are not included in this
+repository and are not licensed here under any terms.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND. IT IS A RESEARCH
+AND DECISION-SUPPORT DEMONSTRATION, NOT FINANCIAL ADVICE, AND CARRIES NO
+GUARANTEE OF ANY TRADING OUTCOME. THE AUTHOR IS NOT LIABLE FOR ANY LOSS ARISING
+FROM ITS USE.
