@@ -47,6 +47,20 @@ python -m pytest tests/ -q             # 6 tests, incl. causality / no-look-ahea
 Point it at your own data with `python demo.py --csv your_xauusd_h1.csv` (columns:
 `time, open, high, low, close, volume`).
 
+### Live data from MetaTrader 5 (Windows)
+
+With the MT5 terminal installed and logged in:
+
+```bash
+pip install MetaTrader5
+python scripts/run_mt5.py --list gold            # find your broker's gold symbol
+python scripts/run_mt5.py --symbol XAUUSD --timeframe H1 --bars 5000
+```
+
+This pulls live candles into the same pipeline and prints the current structure
+read plus the historical-analog verdict for the latest completed bar. It is a
+research read, not a signal, and does not place trades.
+
 ## The data here is synthetic
 
 The bundled sample is **generated**, not real market data, so the repo is
