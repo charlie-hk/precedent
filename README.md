@@ -1,5 +1,7 @@
 # Precedent
 
+![Precedent](docs/cover.png)
+
 Market-structure recognition and historical-analog search for XAU/USD (gold).
 
 Precedent reads price data, labels its structure the way a discretionary trader
